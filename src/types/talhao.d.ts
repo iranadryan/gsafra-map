@@ -1,4 +1,4 @@
-export type TalhaoType {
+export type TalhaoType = {
   id: number;
   nome: string;
   area: number;
