@@ -11,10 +11,25 @@
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   </head>
   <body>
     <div id="app">
       <div id="map"></div>
+    </div>
+    <div id="loader">
+      <div class="overlay">
+        <svg class="spinner" viewBox="0 0 50 50">
+          <circle
+            class="path"
+            cx="25"
+            cy="25"
+            r="20"
+            fill="none"
+            stroke-width="5"
+          />
+        </svg>
+      </div>
     </div>
 
     <script type="module" src="/src/main.ts"></script>
