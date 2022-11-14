@@ -89,6 +89,14 @@ async function initMap(): Promise<void> {
 
         if (idTalhao !== talhao.id) {
           idTalhao = talhao.id;
+          queryParams.set('idTalhao', String(talhao.id));
+          window.history.pushState(
+            {},
+            '',
+            `${window.location.origin}${
+              window.location.pathname
+            }?${queryParams.toString()}`
+          );
           highlightTalhao(talhoesPolygons);
         }
 
@@ -110,7 +118,6 @@ async function initMap(): Promise<void> {
 
     map.setCenter(center);
     map.setZoom(zoomLevel);
-
   }
 
   hideLoader();
