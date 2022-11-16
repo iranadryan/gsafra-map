@@ -127,27 +127,29 @@ async function initMap(): Promise<void> {
     }
 
     talhoes.forEach((talhao) => {
-      const coordinatesArray: CoordinatesType[] =
-        convertStringCoordinatesToArray(talhao.coordenadas);
-
-      const talhaoPolygon = new google.maps.Polygon({
-        map,
-        paths: coordinatesArray,
-        fillColor: idTalhao === talhao.id ? '#FF9A1F' : '#009056',
-        fillOpacity: 0.7,
-        strokeColor: idTalhao === talhao.id ? '#F7BC91' : '#AFF9C7',
-        strokeWeight: 3,
-        ...(idTalhao === talhao.id && { zIndex: 999 }),
-      });
-
       createTalhaoListItem(talhao);
 
-      talhaoPolygon.addListener('click', () => {
-        handleTalhaoClick(talhao);
-      });
+      if (talhao.coordenadas) {
+        const coordinatesArray: CoordinatesType[] =
+          convertStringCoordinatesToArray(talhao.coordenadas);
 
-      allCoordinates.push(...coordinatesArray);
-      talhoesPolygons.push(talhaoPolygon);
+        const talhaoPolygon = new google.maps.Polygon({
+          map,
+          paths: coordinatesArray,
+          fillColor: idTalhao === talhao.id ? '#FF9A1F' : '#009056',
+          fillOpacity: 0.7,
+          strokeColor: idTalhao === talhao.id ? '#F7BC91' : '#AFF9C7',
+          strokeWeight: 3,
+          ...(idTalhao === talhao.id && { zIndex: 999 }),
+        });
+
+        talhaoPolygon.addListener('click', () => {
+          handleTalhaoClick(talhao);
+        });
+
+        allCoordinates.push(...coordinatesArray);
+        talhoesPolygons.push(talhaoPolygon);
+      }
     });
 
     const { bounds, center } = getAreasCenter(allCoordinates);
