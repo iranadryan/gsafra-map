@@ -128,6 +128,10 @@ async function initMap(): Promise<void> {
     talhoes.forEach((talhao) => {
       createTalhaoListItem(talhao);
 
+      if (!idTalhao) {
+        handleTalhaoClick(talhao);
+      }
+
       if (talhao.coordenadas) {
         const coordinatesArray: CoordinatesType[] =
           convertStringCoordinatesToArray(talhao.coordenadas);
