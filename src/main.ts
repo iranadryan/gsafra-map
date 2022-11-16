@@ -10,18 +10,19 @@ import { hideLoader } from './loader';
 import { CoordinatesType, TalhaoType } from './types/talhao';
 
 const mapElement = document.getElementById('map');
+const talhoesCountElement = document.querySelector('.talhoes-container > span');
+const talhoesListElement = document.querySelector('.talhoes-container-list');
 
 let map: google.maps.Map;
-let infoWindow: google.maps.InfoWindow;
 let geocoder: google.maps.Geocoder;
 
+const talhoesPolygons: google.maps.Polygon[] = [];
 const queryParams = new URLSearchParams(window.location.search);
 const cidade = queryParams.get('cidade');
 const uf = queryParams.get('uf');
 const idEmpresa = Number(queryParams.get('idEmpresa'));
 const idFazenda = Number(queryParams.get('idFazenda'));
 let idTalhao = Number(queryParams.get('idTalhao'));
-
 let talhoes: TalhaoType[] = [];
 
 async function getTalhoes(): Promise<TalhaoType[]> {
@@ -39,6 +40,61 @@ async function getTalhoes(): Promise<TalhaoType[]> {
   return [];
 }
 
+function createTalhaoListItem(talhao: TalhaoType) {
+  const li = document.createElement('li');
+  const strong = document.createElement('strong');
+  const span = document.createElement('span');
+
+  span.innerText = `${Number(talhao.hectares)} ha`;
+
+  strong.innerText = talhao.descricao;
+  strong.appendChild(span);
+
+  li.classList.add('talhoes-container-list-item');
+  li.setAttribute('key', `talhao_${talhao.id}`);
+  li.appendChild(strong);
+  li.onclick = () => {
+    handleTalhaoClick(talhao);
+  };
+
+  if (idTalhao === talhao.id) {
+    li.classList.add('selected');
+  }
+
+  talhoesListElement?.appendChild(li);
+}
+
+function handleTalhaoClick(talhao: TalhaoType) {
+  if (idTalhao !== talhao.id) {
+    const talhoesListItems = document.querySelectorAll(
+      '.talhoes-container-list-item'
+    );
+
+    talhoesListItems.forEach((talhaoListItem) => {
+      const talhaoKey = talhaoListItem.getAttribute('key');
+
+      if (talhaoKey === `talhao_${talhao.id}`) {
+        talhaoListItem.classList.add('selected');
+      } else {
+        talhaoListItem.classList.remove('selected');
+      }
+    });
+
+    idTalhao = talhao.id;
+
+    queryParams.set('idTalhao', String(talhao.id));
+    window.history.pushState(
+      {},
+      '',
+      `${window.location.origin}${
+        window.location.pathname
+      }?${queryParams.toString()}`
+    );
+
+    highlightTalhao(talhoesPolygons);
+  }
+}
+
 async function initMap(): Promise<void> {
   const initialCoordinates = { lat: -2.9912935, lng: -47.3536209 };
 
@@ -49,7 +105,6 @@ async function initMap(): Promise<void> {
     disableDefaultUI: true,
     zoomControl: true,
   });
-  infoWindow = new google.maps.InfoWindow();
   geocoder = new google.maps.Geocoder();
 
   talhoes = await getTalhoes();
@@ -64,7 +119,12 @@ async function initMap(): Promise<void> {
     map.setCenter(coordinates);
   } else {
     const allCoordinates: CoordinatesType[] = [];
-    const talhoesPolygons: google.maps.Polygon[] = [];
+
+    if (talhoesCountElement) {
+      talhoesCountElement.innerHTML = `${talhoes.length} ${
+        talhoes.length === 1 ? 'talhão' : 'talhões'
+      }`;
+    }
 
     talhoes.forEach((talhao) => {
       const coordinatesArray: CoordinatesType[] =
@@ -80,30 +140,10 @@ async function initMap(): Promise<void> {
         ...(idTalhao === talhao.id && { zIndex: 999 }),
       });
 
-      talhaoPolygon.addListener('click', (event: any) => {
-        const contentString = `
-          <b class="talhao-name">${talhao.descricao}</b><br />
-          <b class="talhao-label">Área: </b>
-          <span class="talhao-info">${talhao.hectares} ha</span><br />
-        `;
+      createTalhaoListItem(talhao);
 
-        if (idTalhao !== talhao.id) {
-          idTalhao = talhao.id;
-          queryParams.set('idTalhao', String(talhao.id));
-          window.history.pushState(
-            {},
-            '',
-            `${window.location.origin}${
-              window.location.pathname
-            }?${queryParams.toString()}`
-          );
-          highlightTalhao(talhoesPolygons);
-        }
-
-        infoWindow.setContent(contentString);
-        infoWindow.setOptions;
-        infoWindow.setPosition(event.latLng);
-        infoWindow.open(map);
+      talhaoPolygon.addListener('click', () => {
+        handleTalhaoClick(talhao);
       });
 
       allCoordinates.push(...coordinatesArray);

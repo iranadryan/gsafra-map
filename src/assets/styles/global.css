@@ -1,5 +1,15 @@
 :root {
   --gray-800: #102830;
+  --gray-700: #30454c;
+  --gray-500: #506167;
+  --gray-400: #748990;
+  --gray-300: #9fa9ac;
+  --gray-200: #cfd4d6;
+  --gray-100: #f7fbfe;
+
+  --green-700: #009056;
+  --green-500: #00d47e;
+  --green-300: #aff9c7;
 }
 
 * {
@@ -10,16 +20,109 @@
 
 body {
   font-family: 'Montserrat', sans-serif;
+  color: var(--gray-200);
 }
 
 #app {
   width: 100vw;
   height: 100vh;
-  background: #102830;
+  background: var(--gray-800);
+  display: flex;
+}
+
+.talhoes-container {
+  width: 25%;
+  height: 100%;
+  padding: 32px 0;
+}
+
+.talhoes-container h2 {
+  font-size: 24px;
+  color: var(--gray-100);
+  font-weight: 700;
+  margin: 0 16px;
+}
+
+.talhoes-container > span {
+  margin: 8px 16px 0;
+  display: block;
+}
+
+.talhoes-container-list {
+  margin-top: 24px;
+  list-style: none;
+  overflow: auto;
+  height: 90%;
+  padding: 0 16px;
+}
+
+.talhoes-container-list::-webkit-scrollbar {
+  width: 12px;
+}
+
+.talhoes-container-list::-webkit-scrollbar-track {
+  background: var(--gray-800);        /* color of the tracking area */
+}
+
+.talhoes-container-list::-webkit-scrollbar-thumb {
+  background-color: var(--gray-700);    /* color of the scroll thumb */
+  border-radius: 20px;       /* roundness of the scroll thumb */
+  border: 3px solid var(--gray-800);  /* creates padding around scroll thumb */
+}
+
+.talhoes-container-list-item {
+  background: var(--gray-700);
+  border: 1px solid var(--gray-500);
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: all 0.2s ease-in;
+}
+
+.talhoes-container-list-item:hover {
+  filter: brightness(1.2);
+}
+
+.talhoes-container-list-item:active {
+  filter: brightness(1.1);
+}
+
+.talhoes-container-list-item + .talhoes-container-list-item {
+  margin-top: 12px;
+}
+
+.talhoes-container-list-item strong {
+  font-weight: 600;
+}
+
+.talhoes-container-list-item span {
+  font-size: 14px;
+  background: var(--gray-500);
+  padding: 4px;
+  border-radius: 4px;
+  color: var(--gray-300);
+  margin-left: 4px;
+  font-weight: 600;
+}
+
+.talhoes-container-list-item.selected {
+  background: var(--green-500);
+  border-color: var(--green-500);
+}
+
+.talhoes-container-list-item.selected strong {
+  color: var(--gray-100);
+}
+
+.talhoes-container-list-item.selected span {
+  background: var(--green-300);
+  color: var(--green-700);
 }
 
 #map {
-  width: 100%;
+  width: 75%;
   height: 100%;
 }
 
