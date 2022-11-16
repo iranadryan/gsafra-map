@@ -45,14 +45,13 @@ function createTalhaoListItem(talhao: TalhaoType) {
   const strong = document.createElement('strong');
   const span = document.createElement('span');
 
-  span.innerText = `${Number(talhao.hectares)} ha`;
-
+  span.innerText = `${String(Number(talhao.hectares)).replace('.', ',')} ha`;
   strong.innerText = talhao.descricao;
-  strong.appendChild(span);
 
   li.classList.add('talhoes-container-list-item');
   li.setAttribute('key', `talhao_${talhao.id}`);
   li.appendChild(strong);
+  li.appendChild(span);
   li.onclick = () => {
     handleTalhaoClick(talhao);
   };
@@ -90,9 +89,9 @@ function handleTalhaoClick(talhao: TalhaoType) {
         window.location.pathname
       }?${queryParams.toString()}`
     );
-
-    highlightTalhao(talhoesPolygons);
   }
+
+  highlightTalhao();
 }
 
 async function initMap(): Promise<void> {
@@ -165,13 +164,27 @@ async function initMap(): Promise<void> {
   hideLoader();
 }
 
-function highlightTalhao(talhoesPolygons: google.maps.Polygon[]) {
+function highlightTalhao() {
   talhoesPolygons.forEach((talhao, index) => {
     talhao.setOptions({
       fillColor: idTalhao === talhoes[index].id ? '#FF9A1F' : '#009056',
       strokeColor: idTalhao === talhoes[index].id ? '#F7BC91' : '#AFF9C7',
       ...(idTalhao === talhoes[index].id && { zIndex: 999 }),
     });
+
+    if (idTalhao === talhoes[index].id) {
+      const coordinatesArray: CoordinatesType[] =
+        convertStringCoordinatesToArray(talhoes[index].coordenadas);
+
+      const { bounds, center } = getAreasCenter(coordinatesArray);
+      const zoomLevel = getZoomLevel(bounds, {
+        height: map.getDiv().clientHeight,
+        width: map.getDiv().clientWidth,
+      });
+
+      map.setCenter(center);
+      map.setZoom(zoomLevel);
+    }
   });
 }
 

@@ -75,8 +75,6 @@ body {
   border: 1px solid var(--gray-500);
   padding: 12px;
   border-radius: 8px;
-  display: flex;
-  flex-direction: column;
   cursor: pointer;
   transition: all 0.2s ease-in;
 }
@@ -96,6 +94,7 @@ body {
 .talhoes-container-list-item strong {
   font-weight: 600;
   line-height: 150%;
+  margin-right: 4px;
 }
 
 .talhoes-container-list-item span {
@@ -104,8 +103,8 @@ body {
   padding: 4px;
   border-radius: 4px;
   color: var(--gray-300);
-  margin-left: 4px;
   font-weight: 600;
+  display: inline-block;
 }
 
 .talhoes-container-list-item.selected {
