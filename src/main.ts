@@ -33,6 +33,7 @@ async function getTalhoes(): Promise<TalhaoType[]> {
 
     return talhoesFetched.map((talhao) => ({
       id: talhao.id,
+      id_origem: talhao.id_origem,
       descricao: talhao.descricao,
       coordenadas: talhao.coordenadas,
       hectares: Number(talhao.hectares),
@@ -84,7 +85,7 @@ function handleTalhaoClick(talhao: TalhaoType) {
 
     idTalhao = talhao.id;
 
-    queryParams.set('idTalhao', String(talhao.id));
+    queryParams.set('idTalhao', String(talhao.id_origem));
     window.history.pushState(
       {},
       '',

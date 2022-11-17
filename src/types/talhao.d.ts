@@ -1,5 +1,6 @@
 export type TalhaoType = {
   id: number;
+  id_origem?: number;
   descricao: string;
   hectares: number;
   status: number;
