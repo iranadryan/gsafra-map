@@ -1,6 +1,6 @@
 export type TalhaoType = {
   id: number;
-  id_origem?: number;
+  id_origem: number;
   descricao: string;
   hectares: number;
   status: number;
@@ -15,7 +15,7 @@ export type CoordinatesType = {
 export type TalhaoResponseType = {
   id: number;
   id_empresa: number;
-  id_origem?: number;
+  id_origem: number;
   id_fazenda?: number;
   descricao: string;
   hectares: string;

@@ -26,6 +26,8 @@ const status = queryParams.get('status') ? Number(queryParams.get('status')) : 2
 let idTalhao = Number(queryParams.get('idTalhao'));
 let talhoes: TalhaoType[] = [];
 let talhoesCounter = 0;
+let zoomLevel = 16;
+let centerCoordinates: google.maps.LatLng;
 
 async function getTalhoes(): Promise<TalhaoType[]> {
   if (idEmpresa && idFazenda) {
@@ -60,7 +62,7 @@ function createTalhaoListItem(talhao: TalhaoType) {
     handleTalhaoClick(talhao);
   };
 
-  if (idTalhao === talhao.id) {
+  if (idTalhao === talhao.id_origem) {
     li.classList.add('selected');
   }
 
@@ -68,7 +70,7 @@ function createTalhaoListItem(talhao: TalhaoType) {
 }
 
 function handleTalhaoClick(talhao: TalhaoType) {
-  if (idTalhao !== talhao.id) {
+  if (idTalhao !== talhao.id_origem) {
     const talhoesListItems = document.querySelectorAll(
       '.talhoes-container-list-item'
     );
@@ -83,19 +85,28 @@ function handleTalhaoClick(talhao: TalhaoType) {
       }
     });
 
-    idTalhao = talhao.id;
+    idTalhao = talhao.id_origem;
 
     queryParams.set('idTalhao', String(talhao.id_origem));
     window.history.pushState(
       {},
       '',
-      `${window.location.origin}${
-        window.location.pathname
+      `${window.location.origin}${window.location.pathname
       }?${queryParams.toString()}`
     );
   }
 
   highlightTalhao();
+}
+
+async function handleCenterCityCoordinates() {
+  if (!cidade || !uf) {
+    hideLoader();
+    return;
+  }
+
+  const coordinates = await getCityCoordinates(geocoder, cidade, uf);
+  map.setCenter(coordinates);
 }
 
 async function initMap(): Promise<void> {
@@ -113,13 +124,7 @@ async function initMap(): Promise<void> {
   talhoes = await getTalhoes();
 
   if (talhoes.length === 0) {
-    if (!cidade || !uf) {
-      hideLoader();
-      return;
-    }
-
-    const coordinates = await getCityCoordinates(geocoder, cidade, uf);
-    map.setCenter(coordinates);
+    handleCenterCityCoordinates();
   } else {
     const allCoordinates: CoordinatesType[] = [];
 
@@ -143,11 +148,11 @@ async function initMap(): Promise<void> {
         const talhaoPolygon = new google.maps.Polygon({
           map,
           paths: coordinatesArray,
-          fillColor: idTalhao === talhao.id ? '#FF9A1F' : '#009056',
+          fillColor: idTalhao === talhao.id_origem ? '#FF9A1F' : '#009056',
           fillOpacity: 0.7,
-          strokeColor: idTalhao === talhao.id ? '#F7BC91' : '#AFF9C7',
+          strokeColor: idTalhao === talhao.id_origem ? '#F7BC91' : '#AFF9C7',
           strokeWeight: 3,
-          ...(idTalhao === talhao.id && { zIndex: 999 }),
+          ...(idTalhao === talhao.id_origem && { zIndex: 999 }),
         });
 
         talhaoPolygon.addListener('click', () => {
@@ -160,20 +165,21 @@ async function initMap(): Promise<void> {
     });
 
     if (talhoesCountElement) {
-      talhoesCountElement.innerHTML = `${talhoesCounter} ${
-        talhoesCounter === 1 ? 'talhão' : 'talhões'
-      }`;
+      talhoesCountElement.innerHTML = `${talhoesCounter} ${talhoesCounter === 1 ? 'talhão' : 'talhões'}`;
     }
 
-    if (talhoesCounter > 0) {
+    if (talhoesPolygons.length > 0) {
       const { bounds, center } = getAreasCenter(allCoordinates);
-      const zoomLevel = getZoomLevel(bounds, {
+      zoomLevel = getZoomLevel(bounds, {
         height: map.getDiv().clientHeight,
         width: map.getDiv().clientWidth,
       });
+      centerCoordinates = center;
 
       map.setCenter(center);
       map.setZoom(zoomLevel);
+    } else {
+      handleCenterCityCoordinates();
     }
   }
 
@@ -183,24 +189,10 @@ async function initMap(): Promise<void> {
 function highlightTalhao() {
   talhoesPolygons.forEach((talhao, index) => {
     talhao.setOptions({
-      fillColor: idTalhao === talhoes[index].id ? '#FF9A1F' : '#009056',
-      strokeColor: idTalhao === talhoes[index].id ? '#F7BC91' : '#AFF9C7',
-      ...(idTalhao === talhoes[index].id && { zIndex: 999 }),
+      fillColor: idTalhao === talhoes[index].id_origem ? '#FF9A1F' : '#009056',
+      strokeColor: idTalhao === talhoes[index].id_origem ? '#F7BC91' : '#AFF9C7',
+      ...(idTalhao === talhoes[index].id_origem && { zIndex: 999 }),
     });
-
-    if (idTalhao === talhoes[index].id) {
-      const coordinatesArray: CoordinatesType[] =
-        convertStringCoordinatesToArray(talhoes[index].coordenadas);
-
-      const { bounds, center } = getAreasCenter(coordinatesArray);
-      const zoomLevel = getZoomLevel(bounds, {
-        height: map.getDiv().clientHeight,
-        width: map.getDiv().clientWidth,
-      });
-
-      map.setCenter(center);
-      map.setZoom(zoomLevel);
-    }
   });
 }
 
@@ -211,4 +203,4 @@ declare global {
 }
 window.initMap = initMap;
 
-export {};
+export { };
