@@ -2,6 +2,7 @@ export type TalhaoType = {
   id: number;
   descricao: string;
   hectares: number;
+  status: number;
   coordenadas: string;
 }
 
@@ -17,6 +18,7 @@ export type TalhaoResponseType = {
   id_fazenda?: number;
   descricao: string;
   hectares: string;
+  status: number;
   coordenadas: string;
   data_atualizacao: string;
   excluido: number;

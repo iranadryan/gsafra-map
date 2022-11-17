@@ -22,8 +22,10 @@ const cidade = queryParams.get('cidade');
 const uf = queryParams.get('uf');
 const idEmpresa = Number(queryParams.get('idEmpresa'));
 const idFazenda = Number(queryParams.get('idFazenda'));
+const status = queryParams.get('status') ? Number(queryParams.get('status')) : 2;
 let idTalhao = Number(queryParams.get('idTalhao'));
 let talhoes: TalhaoType[] = [];
+let talhoesCounter = 0;
 
 async function getTalhoes(): Promise<TalhaoType[]> {
   if (idEmpresa && idFazenda) {
@@ -34,6 +36,7 @@ async function getTalhoes(): Promise<TalhaoType[]> {
       descricao: talhao.descricao,
       coordenadas: talhao.coordenadas,
       hectares: Number(talhao.hectares),
+      status: talhao.status,
     }));
   }
 
@@ -119,13 +122,13 @@ async function initMap(): Promise<void> {
   } else {
     const allCoordinates: CoordinatesType[] = [];
 
-    if (talhoesCountElement) {
-      talhoesCountElement.innerHTML = `${talhoes.length} ${
-        talhoes.length === 1 ? 'talhão' : 'talhões'
-      }`;
-    }
-
     talhoes.forEach((talhao) => {
+      if ([0, 1].includes(status) && status !== talhao.status) {
+        return;
+      }
+
+      talhoesCounter += 1;
+
       createTalhaoListItem(talhao);
 
       if (!idTalhao) {
@@ -155,14 +158,22 @@ async function initMap(): Promise<void> {
       }
     });
 
-    const { bounds, center } = getAreasCenter(allCoordinates);
-    const zoomLevel = getZoomLevel(bounds, {
-      height: map.getDiv().clientHeight,
-      width: map.getDiv().clientWidth,
-    });
+    if (talhoesCountElement) {
+      talhoesCountElement.innerHTML = `${talhoesCounter} ${
+        talhoesCounter === 1 ? 'talhão' : 'talhões'
+      }`;
+    }
 
-    map.setCenter(center);
-    map.setZoom(zoomLevel);
+    if (talhoesCounter > 0) {
+      const { bounds, center } = getAreasCenter(allCoordinates);
+      const zoomLevel = getZoomLevel(bounds, {
+        height: map.getDiv().clientHeight,
+        width: map.getDiv().clientWidth,
+      });
+
+      map.setCenter(center);
+      map.setZoom(zoomLevel);
+    }
   }
 
   hideLoader();
